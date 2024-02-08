@@ -93,7 +93,7 @@ const openAddModal = (e) => {
     modal.querySelector('.js-modal-stop').addEventListener('click', stopPropagation);
 }
 
-// Fonction pour fermer le modal
+// Fonction pour fermer le modal et actualiser la page
 const closeModal = (e) => {
     // Vérifier si le modal est défini
     if (modal === null) return;
@@ -109,7 +109,11 @@ const closeModal = (e) => {
 
     // Réinitialiser la variable modal à null
     modal = null;
+
+    // Actualiser la page
+    window.location.reload();
 }
+
 
 // Fonction pour arrêter la propagation de l'événement
 const stopPropagation = (e) => {
