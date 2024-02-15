@@ -2,29 +2,36 @@
 const gallery = document.querySelector(".gallery");
 const logBtn = document.getElementById('userLoginBtn');
 
-// Effectue une requête GET vers l'API locale pour récupérer les données des projets
-fetch('http://localhost:5678/api/works')
-  .then(function(res) {
-    // Vérifie si la requête a réussi (status 200 OK)
-    if (res.ok) {
-      // Convertit la réponse en format JSON
-      return res.json();
-    }
-  })
-  .then(function(data) {
-    // Parcourt les données récupérées et crée du HTML pour chaque projet, puis l'ajoute à la galerie
-    data.forEach((project) => {
-      const projects = `<figure class='${project.categoryId}'>
-        <img crossorigin="anonymous" src="${project.imageUrl}" alt="${project.title}">
-        <figcaption>${project.title}</figcaption>
-      </figure>`
-      gallery.insertAdjacentHTML("beforeend", projects)
+
+
+// Nouvelle fonction pour mettre à jour la galerie
+export const updateGallery = () => {
+  fetch('http://localhost:5678/api/works')
+    .then(function (res) {
+      if (res.ok) {
+        return res.json();
+      }
+    })
+    .then(function (data) {
+      // Efface la galerie actuelle
+      gallery.innerHTML = "";
+
+      // Parcourt les données récupérées et crée du HTML pour chaque projet, puis l'ajoute à la galerie
+      data.forEach((project) => {
+        const projects = `<figure class='${project.categoryId}'>
+          <img crossorigin="anonymous" src="${project.imageUrl}" alt="${project.title}">
+          <figcaption>${project.title}</figcaption>
+        </figure>`;
+        gallery.insertAdjacentHTML("beforeend", projects);
+      });
+    })
+    .catch(function (err) {
+      console.error('Error:', err);
     });
-  })
-  .catch(function(err) {
-    // Gère les erreurs en affichant un message dans la console
-    console.error('Error:', err)
-  });
+};
+
+
+
 
 // Sélectionne tous les boutons avec la classe "btn-filter" et ajoute un gestionnaire d'événements pour le clic
 const buttons = document.querySelectorAll(".btn-filter")
@@ -53,16 +60,23 @@ const filterCategories = (categorySelected, categoriesArr) => {
 
 // Exécute le code lorsque le DOM est entièrement chargé
 document.addEventListener('DOMContentLoaded', function() {
-  // Récupère le jeton d'utilisateur depuis le stockage local
+  updateGallery();
+  // Récupère l'userToken depuis le stockage local
   const userToken = localStorage.getItem('userToken');
   // Sélectionne à nouveau le bouton de connexion
   const logBtn = document.getElementById('userLoginBtn');
   // Sélectionne l'élément avec l'ID "edit"
   const navPortModif = document.getElementById('edit');
+  // Sélectionne l'élement avec l'ID filter 
+  const navfilter = document.getElementById('filter');
+   // Sélectionne l'élement avec l'ID  navEdit 
+  const navEdit = document.getElementById('navEdit');
+
+
 
   // Ajoute un gestionnaire d'événements pour le clic sur le bouton de connexion
   logBtn.addEventListener('click', function() {
-    // Supprime le jeton d'utilisateur du stockage local et redirige vers la page de connexion
+    // Supprime l'userToken du stockage local et redirige vers la page de connexion
     localStorage.removeItem('userToken');
     window.location.href = "login.html";
   });
@@ -73,6 +87,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Modifie le texte du bouton et affiche le bouton "modifier" en cas de connexion
     logBtn.innerHTML = "logout";
     navPortModif.style.display = 'block';
+    //fait disparaitre les filtres
+    navfilter.style.display = 'none';
+    navEdit.style.display = 'block';
+
   } else {
     console.log("Utilisateur pas connecté !");
     // Modifie le texte du bouton et cache le bouton "modifier" en cas de déconnexion

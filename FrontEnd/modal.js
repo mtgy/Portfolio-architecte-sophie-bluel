@@ -1,50 +1,45 @@
+import { updateGallery } from "./main.js";
+
 // Variable pour stocker la référence du modal actuellement ouvert
 let modal = null;
 
 // Référence à un élément HTML avec la classe "edit-projects"
 const editProjects = document.querySelector(".edit-projects");
 
-// Fonction pour afficher les projets (utilisation d'une IIFE pour l'exécuter une seule fois)
-var displayProjectsToEdit = (function() {
-    // Variable pour s'assurer que la fonction n'est exécutée qu'une fois
-    var executed = false;
+// Fonction pour afficher les projets
+function displayProjectsToEdit() {
+    // Requête Fetch pour récupérer les projets depuis l'API
+    fetch('http://localhost:5678/api/works')
+        .then(function(res) {
+            // Vérifier si la réponse est OK
+            if (res.ok) {
+                return res.json();
+            }
+        })
+        .then(function(data) {
+            // Effacer le contenu actuel de l'élément "editProjects"
+            editProjects.innerHTML = '';
 
-    return function() {
-        // Vérifier si la fonction n'a pas encore été exécutée
-        if (!executed) {
-            // Marquer la fonction comme exécutée
-            executed = true;
+            // Parcourir les données et générer du HTML pour chaque projet
+            data.forEach((project) => {
+                const projects = `<div id="${project.id}" class="edit-project">
+                    <img crossorigin="anonymous" src="${project.imageUrl}" alt="${project.title}">
+                    <button class="btn-delete"><i id="${project.id}" class="fa-solid fa-trash-can"></i></button>
+                </div>`;
+                // Insérer le HTML généré à la fin de l'élément "edit-projects"
+                editProjects.insertAdjacentHTML("beforeend", projects);
+            });
 
-            // Requête Fetch pour récupérer les projets depuis l'API
-            fetch('http://localhost:5678/api/works')
-                .then(function(res) {
-                    // Vérifier si la réponse est OK
-                    if (res.ok) {
-                        return res.json();
-                    }
-                })
-                .then(function(data) {
-                    // Parcourir les données et générer du HTML pour chaque projet
-                    data.forEach((project) => {
-                        const projects = `<div id="${project.id}" class="edit-project">
-                            <img crossorigin="anonymous" src="${project.imageUrl}" alt="${project.title}">
-                            <button class="btn-delete"><i id="${project.id}" class="fa-solid fa-trash-can"></i></button>
-                        </div>`;
-                        // Insérer le HTML généré à la fin de l'élément "edit-projects"
-                        editProjects.insertAdjacentHTML("beforeend", projects);
-                    });
+            // Sélectionner les boutons de suppression et ajouter des écouteurs d'événements
+            const buttonsToDelete = document.querySelectorAll(".btn-delete");
+            addEventListeners(buttonsToDelete);
+        })
+        .catch(function(err) {
+            // Gérer les erreurs de la requête Fetch
+            console.error('Error:', err);
+        });
+}
 
-                    // Sélectionner les boutons de suppression et ajouter des écouteurs d'événements
-                    const buttonsToDelete = document.querySelectorAll(".btn-delete");
-                    addEventListeners(buttonsToDelete);
-                })
-                .catch(function(err) {
-                    // Gérer les erreurs de la requête Fetch
-                    console.error('Error:', err);
-                });
-        }
-    };
-})();
 
 // Fonction pour ajouter des écouteurs d'événements aux boutons de suppression
 const addEventListeners = (buttonsToDelete) => {
@@ -110,9 +105,24 @@ const closeModal = (e) => {
     // Réinitialiser la variable modal à null
     modal = null;
 
-    // Actualiser la page
-    window.location.reload();
+    const form = document.getElementById('add-project');
+    form.reset();
+    // Efface l'aperçu de l'image dans le formulaire
+    const parentDiv = document.querySelector(".parent-div");
+    // Supprimer tous les enfants de parentDiv
+    while (parentDiv.firstChild) {
+        parentDiv.removeChild(parentDiv.firstChild);
+    }
+    // Ajouter les éléments par défaut
+    const defaultContent = '<img src="./assets/icons/picture.png" alt="picture" class="picture-icon">' +
+                          '<button class="btn-upload">+ Ajouter photo</button>' +
+                          '<input type="file" class="input-file" id="image" name="image" accept="image/*">' +
+                          '<p class="format-image">jpg, png : 4mo max</p>';
+    parentDiv.insertAdjacentHTML("beforeend", defaultContent);
+
+   
 }
+
 
 
 // Fonction pour arrêter la propagation de l'événement
@@ -140,6 +150,7 @@ const deleteProject = (id) => {
                 document.getElementById(id).remove();
                 // Actualiser l'affichage des projets
                 displayProjectsToEdit();
+                updateGallery();
             } else {
                 console.log("Project not deleted");
             }
@@ -172,8 +183,8 @@ const addProject = (e) => {
     })
         .then(function(res) {
             if (res.ok) {
-                // Actualiser la page après l'ajout réussi du projet
-                window.location.reload();
+                closeModal(e);
+                updateGallery();
                 return res.json();
             }
         })
@@ -210,6 +221,7 @@ file.addEventListener("change", (e) => {
     // Lire le contenu du fichier en tant que données URL
     reader.readAsDataURL(file);
 });
+
 
 // Écouteurs d'événements pour l'ouverture de modaux et l'ajout de projets
 document.querySelector('.js-modal').addEventListener('click', openModal);

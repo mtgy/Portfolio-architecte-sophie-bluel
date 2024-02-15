@@ -3,14 +3,14 @@ document.getElementById("login-form").addEventListener("submit", function(event)
 
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
-  const userToken = localStorage.getItem('userToken');
+
 
 
   fetch("http://localhost:5678/api/users/login", {
       method: "POST",
       headers: {
           "Content-Type": "application/json",
-          'Authorization': `Bearer ${userToken}`, 
+       
       },
       body: JSON.stringify({ email, password })
   })

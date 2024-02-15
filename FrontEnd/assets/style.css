@@ -201,13 +201,12 @@ footer nav ul {
  
 }
 
-.filter {
+#filter {
   text-align: center;
-  margin-top: 50px;
   margin-bottom: 50px;
 }
 
-.filter .btn-filter {
+#filter .btn-filter {
 	cursor: pointer;
 	font-family: 'Syne';
 	font-weight: 700;
@@ -227,7 +226,7 @@ footer nav ul {
 	background-color: #1D6154;
 }
 
-.filter button:hover {
+#filter button:hover {
   background-color: #1D6154;
   color: white;
 }
@@ -240,25 +239,38 @@ footer nav ul {
 .title {
   display: flex;
   justify-content: center;
-  margin-bottom: 1em;
-
+  margin-bottom: 50px;
 }
+
+
 
 .title #edit {
   display: flex;
   align-items: center;
-  padding-left: 30px;
   cursor: pointer;
+  margin: 0.5rem 0 0rem 2rem;
 }
 
 .title #edit p {
   font-size: 14px;
   padding-left: 10px;
 }
-.title #edit i {
+.title #edit i, #navEdit i {
   font-size: 15px;
   padding-right: 10px;
 }
+
+#navEdit {
+	width: 100%;
+	background: black;
+	color: white;
+	text-align: center;
+	top: 0;
+	padding: 1rem 0;
+	position: fixed;
+	left: 0;
+}
+
 
 /* Login Page */
 #login {
